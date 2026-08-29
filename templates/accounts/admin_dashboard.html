@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Overview — KPS Studio{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Global Overview</h1>
+    <p>Vue d'ensemble de la plateforme KPS Studio.</p>
+  </div>
+  <div class="page-header__actions">
+    <a href="{% url 'accounts:user_create' %}" class="btn btn--secondary">+ Ajouter un utilisateur</a>
+    <a href="{% url 'events:event_create' %}" class="btn">+ Créer un événement</a>
+  </div>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-tile">
+    <div class="stat-tile__value">{{ total_events }}</div>
+    <div class="stat-tile__label">Total événements</div>
+  </div>
+  <div class="stat-tile">
+    <div class="stat-tile__value">{{ active_photographers }}</div>
+    <div class="stat-tile__label">Photographes actifs / {{ total_photographers }}</div>
+  </div>
+  <div class="stat-tile">
+    <div class="stat-tile__label" style="margin-bottom:0.4rem;">Statut des événements</div>
+    <div class="stat-tile__bar">
+      <div class="stat-tile__bar-active" style="width:{{ active_pct }}%;"></div>
+      <div class="stat-tile__bar-pending" style="width:{{ pending_pct }}%;"></div>
+    </div>
+    <div class="stat-tile__legend">
+      <span><span class="dot" style="background:var(--success);"></span>Actifs {{ active_pct }}%</span>
+      <span><span class="dot" style="background:var(--accent);"></span>Attente {{ pending_pct }}%</span>
+    </div>
+  </div>
+  <div class="stat-tile">
+    <div class="stat-tile__value">{{ total_photos }}</div>
+    <div class="stat-tile__label">Photos stockées · {{ total_storage }}</div>
+  </div>
+</div>
+
+<div class="dashboard-grid">
+  <div>
+    <h2 style="font-size:1.1rem;">Événements récents</h2>
+    {% if recent_events %}
+    <div class="card" style="padding:0;">
+      <table>
+        <thead>
+          <tr><th>Événement</th><th>Créé par</th><th>Date</th><th>Statut</th></tr>
+        </thead>
+        <tbody>
+          {% for event in recent_events %}
+          <tr>
+            <td>
+              <div class="table-cell-flex">
+                {% with cover=event.photos.first %}
+                  {% if cover %}<img src="{{ cover.image.url }}" class="table-thumb" alt="">{% else %}<div class="table-thumb"></div>{% endif %}
+                {% endwith %}
+                <div>
+                  <div style="font-weight:600;">{{ event.title }}</div>
+                  <div class="text-sm text-muted">{{ event.photo_count }} photos</div>
+                </div>
+              </div>
+            </td>
+            <td>{{ event.photographer.get_full_name }}</td>
+            <td>{{ event.created_at|date:"d/m/Y" }}</td>
+            <td>
+              {% if event.status == 'active' %}<span class="badge badge--active">Actif</span>
+              {% elif event.status == 'pending' %}<span class="badge badge--pending">En attente</span>
+              {% else %}<span class="badge badge--expired">Expiré</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">Aucun événement pour le moment.</div>
+    {% endif %}
+  </div>
+
+  <div>
+    <h2 style="font-size:1.1rem;">Top photographes</h2>
+    <div class="card">
+      {% for p in top_photographers %}
+      <div class="photographer-row">
+        <div class="sidebar__avatar" style="background:var(--pending-bg); color:var(--accent);">{{ p.get_short_name|first|upper }}</div>
+        <div class="photographer-row__name">{{ p.get_full_name }}</div>
+        <div class="photographer-row__count">{{ p.event_count }}</div>
+      </div>
+      {% empty %}
+      <p class="text-sm mt-0">Aucun photographe pour le moment.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

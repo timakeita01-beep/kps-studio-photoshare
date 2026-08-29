@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Modifier{% else %}Nouvel événement{% endif %} — KPS Studio{% endblock %}
+{% block content %}
+<div class="container--narrow">
+  <div class="page-header">
+    <h1>{% if object %}Modifier l'événement{% else %}Créer un événement{% endif %}</h1>
+  </div>
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        {% if field.name == 'is_paid' %}
+        <div class="form-group form-check">
+          {{ field }}
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        </div>
+        {% if field.help_text %}<div class="help-text" style="margin-top:-0.75rem; margin-bottom:1.25rem;">{{ field.help_text }}</div>{% endif %}
+        {% else %}
+        <div class="form-group">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<div class="help-text">{{ field.help_text }}</div>{% endif %}
+          {% if field.errors %}<div class="field-errors">{{ field.errors }}</div>{% endif %}
+        </div>
+        {% endif %}
+      {% endfor %}
+      <button type="submit" class="btn btn--block">{% if object %}Enregistrer{% else %}Créer l'événement{% endif %}</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Paramètres — KPS Studio{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Platform Settings</h1>
+    <p>Gérez le profil de votre studio et vos préférences de sécurité.</p>
+  </div>
+</div>
+
+<div class="stack" style="max-width:640px;">
+  <div class="card">
+    <h2 style="font-size:1.05rem;">Company Profile</h2>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="form-group">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.name == 'logo' and form.instance.logo %}
+          <img src="{{ form.instance.logo.url }}" alt="" style="height:48px; border-radius:6px; margin-top:0.5rem;">
+        {% endif %}
+        {% if field.help_text %}<div class="help-text">{{ field.help_text }}</div>{% endif %}
+        {% if field.errors %}<div class="field-errors">{{ field.errors }}</div>{% endif %}
+      </div>
+      {% endfor %}
+      <button type="submit" class="btn">Enregistrer</button>
+    </form>
+  </div>
+
+  <div class="card flex--between">
+    <div>
+      <strong>Sécurité</strong>
+      <p class="text-sm mt-0 mb-0">Modifiez votre mot de passe de connexion.</p>
+    </div>
+    <a href="{% url 'accounts:password_change' %}" class="btn btn--secondary btn--sm">Changer le mot de passe</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% load static %}<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}KPS Studio{% endblock %}</title>
+  <script>
+    (function () {
+      var t = localStorage.getItem('kps-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar__brand">KPS <span>Studio</span></div>
+      <div class="sidebar__tagline">Photography Management</div>
+
+      {% if user.is_photographer %}
+      <a href="{% url 'events:event_create' %}" class="sidebar__create">+ Créer un événement</a>
+      {% endif %}
+
+      <nav class="sidebar__nav">
+        {% if user.is_admin %}
+          <a href="{% url 'accounts:admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">Overview</a>
+        {% endif %}
+        {% if user.is_photographer %}
+          <a href="{% url 'events:dashboard' %}" class="{% if 'events' in request.resolver_match.namespaces %}active{% endif %}">Events</a>
+        {% endif %}
+        {% if user.is_admin %}
+          <a href="{% url 'accounts:user_list' %}" class="{% if request.resolver_match.url_name == 'user_list' or request.resolver_match.url_name == 'user_create' %}active{% endif %}">Users</a>
+        {% endif %}
+        <a href="{% url 'accounts:profile' %}" class="{% if request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'password_change' %}active{% endif %}">Settings</a>
+      </nav>
+
+      <div class="sidebar__theme">
+        <span>Thème : <span id="theme-label">Clair</span></span>
+        <label class="switch">
+          <input type="checkbox" onchange="toggleTheme()" id="theme-switch">
+          <span class="switch__track"></span>
+        </label>
+      </div>
+
+      <div class="sidebar__footer">
+        <div class="sidebar__avatar">
+          {% if user.logo %}<img src="{{ user.logo.url }}" alt="">{% else %}{{ user.get_short_name|first|upper }}{% endif %}
+        </div>
+        <div>
+          <div class="sidebar__user-name">{{ user.get_full_name }}</div>
+          <div class="sidebar__user-role">{{ user.role_label }}</div>
+        </div>
+        <form method="post" action="{% url 'accounts:logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="sidebar__logout" title="Déconnexion">⏻</button>
+        </form>
+      </div>
+    </aside>
+
+    <div class="main">
+      <div class="topbar">
+        <input type="search" class="topbar__search" placeholder="Search events, clients…" disabled>
+        <div class="topbar__actions text-muted text-sm">{{ user.email }}</div>
+      </div>
+
+      <main class="page">
+        <div class="container">
+          {% if messages %}
+          <ul class="messages">
+            {% for message in messages %}
+            <li class="message message--{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+          {% block content %}{% endblock %}
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="{% static 'js/theme.js' %}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var isDark = (localStorage.getItem('kps-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')) === 'dark';
+      document.getElementById('theme-switch').checked = isDark;
+    });
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

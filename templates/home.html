@@ -1,0 +1,50 @@
+{% extends "public_base.html" %}
+{% block title %}KPS Studio — Photographie, imprimerie & design graphique{% endblock %}
+{% block content %}
+<div class="container" style="display:flex; justify-content:flex-end; padding-top:1.25rem;">
+  <a href="{% url 'accounts:login' %}" class="btn btn--secondary btn--sm">Connexion</a>
+</div>
+
+<div class="landing-hero">
+  <h1>KPS <span style="color:var(--accent);">Studio</span></h1>
+  <p>
+    KPS Studio accompagne particuliers et entreprises sur l'ensemble de la chaîne visuelle :
+    de la prise de vue à l'objet imprimé, en passant par la création graphique. Nos photographes
+    partenaires utilisent cette plateforme pour livrer vos photos en toute simplicité.
+  </p>
+</div>
+
+<div class="container">
+  <div class="landing-activities">
+    <div class="card">
+      <div class="card__icon">📷</div>
+      <h3 style="font-size:1.05rem;">Photographie</h3>
+      <p class="text-sm mt-0">Mariages, portraits, événements corporate et séances studio, par nos photographes partenaires.</p>
+    </div>
+    <div class="card">
+      <div class="card__icon">🖨️</div>
+      <h3 style="font-size:1.05rem;">Imprimerie</h3>
+      <p class="text-sm mt-0">Tirages, albums et supports imprimés à partir de vos plus belles photos.</p>
+    </div>
+    <div class="card">
+      <div class="card__icon">🎨</div>
+      <h3 style="font-size:1.05rem;">Design graphique</h3>
+      <p class="text-sm mt-0">Identité visuelle, faire-part et supports de communication sur mesure.</p>
+    </div>
+  </div>
+
+  <div class="landing-access card">
+    <h3 style="font-size:1.1rem;">Vous avez reçu un code d'accès ?</h3>
+    <p class="text-sm">Votre photographe vous a transmis un code — saisissez-le ici pour accéder à votre galerie.</p>
+    <form method="post" action="{% url 'gallery:access_by_code' %}">
+      {% csrf_token %}
+      <input type="text" name="code" placeholder="Votre code d'accès" required>
+      <button type="submit" class="btn">Accéder à ma galerie</button>
+    </form>
+  </div>
+</div>
+
+<div class="landing-footer">
+  © {% now "Y" %} KPS Studio. Tous droits réservés.
+</div>
+{% endblock %}

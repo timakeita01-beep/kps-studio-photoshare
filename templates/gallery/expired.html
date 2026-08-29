@@ -1,0 +1,31 @@
+{% extends "public_base.html" %}
+{% block title %}Lien indisponible — KPS Studio{% endblock %}
+{% block content %}
+<div class="expired-page">
+  <div class="expired-card">
+    <div class="expired-page__icon">🔒</div>
+    {% if reason == 'pending' %}
+      <h1>Galerie en attente</h1>
+      <p>Cette galerie sera accessible dès que le règlement aura été confirmé auprès de votre photographe.</p>
+    {% else %}
+      <h1>Ce lien a expiré</h1>
+      <p>
+        {% if event %}La galerie « {{ event.title }} » n'est plus accessible.{% else %}Cette galerie n'est plus accessible.{% endif %}
+      </p>
+    {% endif %}
+
+    {% if event and event.photographer %}
+    <div class="contact-box">
+      <strong>Contacter le photographe</strong>
+      <hr>
+      <div class="contact-box__row">✉️ <a href="mailto:{{ event.photographer.contact_email }}">{{ event.photographer.contact_email }}</a></div>
+      {% if event.photographer.phone %}
+      <div class="contact-box__row">📞 {{ event.photographer.phone }}</div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <a href="{% url 'home' %}" class="btn">Retour à l'accueil</a>
+  </div>
+</div>
+{% endblock %}

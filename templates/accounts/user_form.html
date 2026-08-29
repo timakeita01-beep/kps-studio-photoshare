@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Nouveau photographe — KPS Studio{% endblock %}
+{% block content %}
+<div class="container--narrow">
+  <div class="page-header">
+    <h1>Nouveau photographe</h1>
+  </div>
+  <div class="card">
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="form-group">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<div class="field-errors">{{ field.errors }}</div>{% endif %}
+      </div>
+      {% endfor %}
+      <button type="submit" class="btn btn--block">Créer le compte</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

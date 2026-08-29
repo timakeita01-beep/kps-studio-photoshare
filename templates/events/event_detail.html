@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ event.title }} — KPS Studio{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ event.title }}</h1>
+    <p>
+      {{ event.get_event_type_display }} · créé le {{ event.created_at|date:"d/m/Y" }}
+      {% if event.status == 'active' %}<span class="badge badge--active" style="margin-left:0.5rem;">Actif</span>
+      {% elif event.status == 'pending' %}<span class="badge badge--pending" style="margin-left:0.5rem;">En attente de paiement</span>
+      {% else %}<span class="badge badge--expired" style="margin-left:0.5rem;">Expiré</span>{% endif %}
+    </p>
+  </div>
+  <div class="flex">
+    <a href="{% url 'events:event_update' event.pk %}" class="btn btn--secondary btn--sm">Modifier</a>
+    <a href="{% url 'events:event_delete' event.pk %}" class="btn btn--danger btn--sm">Supprimer</a>
+  </div>
+</div>
+
+{% if event.description %}<p>{{ event.description }}</p>{% endif %}
+
+<div class="dashboard-grid" style="margin-bottom:2rem;">
+  <div class="card">
+    <h2 style="font-size:1rem;">Lien &amp; accès</h2>
+    {% if event.is_paid %}
+      <div class="copy-field">
+        <input type="text" readonly id="share-link-input"
+               value="{{ request.scheme }}://{{ request.get_host }}{{ share_link.get_public_url }}">
+        <button type="button" class="btn btn--secondary btn--sm" onclick="copyShareLink()">Copier</button>
+      </div>
+      <p class="text-sm" style="margin:0.5rem 0 1rem;">
+        Code d'accès (si vous préférez le communiquer plutôt que le lien) : <strong>{{ share_link.token }}</strong>
+      </p>
+      <div class="flex flex--wrap">
+        <form method="post" action="{% url 'events:share_link_toggle' event.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn--secondary btn--sm">
+            {% if share_link.is_active %}Désactiver le lien{% else %}Activer le lien{% endif %}
+          </button>
+        </form>
+        <form method="post" action="{% url 'events:share_link_regenerate' event.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn--secondary btn--sm">Régénérer le lien</button>
+        </form>
+        <form method="post" action="{% url 'events:event_extend' event.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn--secondary btn--sm">Prolonger de 15 jours</button>
+        </form>
+      </div>
+      <p class="text-sm text-muted" style="margin-top:0.75rem;">
+        Statut du lien : {% if share_link.is_active %}<span class="badge badge--active">Actif</span>{% else %}<span class="badge badge--muted">Désactivé</span>{% endif %}
+        · expire le {{ event.expires_at|date:"d/m/Y" }}
+      </p>
+    {% else %}
+      <p>En attente de paiement du client : le lien de partage n'est pas encore actif et le délai de 15 jours n'a pas commencé.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:1rem;">Statut paiement</h2>
+    <div class="flex--between">
+      <div>
+        <div style="font-weight:600;">{% if event.is_paid %}Payé{% else %}Non payé{% endif %}</div>
+        {% if event.paid_at %}<div class="text-sm text-muted">le {{ event.paid_at|date:"d/m/Y" }}</div>{% endif %}
+      </div>
+      {% if event.is_paid %}
+      <form method="post" action="{% url 'events:event_mark_unpaid' event.pk %}">
+        {% csrf_token %}
+        <label class="switch"><input type="checkbox" checked onchange="this.form.submit()"><span class="switch__track"></span></label>
+      </form>
+      {% else %}
+      <form method="post" action="{% url 'events:event_mark_paid' event.pk %}">
+        {% csrf_token %}
+        <label class="switch"><input type="checkbox" onchange="this.form.submit()"><span class="switch__track"></span></label>
+      </form>
+      {% endif %}
+    </div>
+    <hr style="border:none; border-top:1px solid var(--border); margin:1rem 0;">
+    <div class="flex--between text-sm">
+      <span>👁 {{ event.view_count }} vues</span>
+      <span>⬇ {{ event.download_count }} téléchargements</span>
+    </div>
+  </div>
+</div>
+
+<h2 style="font-size:1rem;">Importer des photos</h2>
+<form method="post" action="{% url 'events:photo_upload' event.pk %}" enctype="multipart/form-data" id="upload-form">
+  {% csrf_token %}
+  <div class="dropzone" id="dropzone">
+    <p class="mt-0">Glissez vos photos ici, ou <label for="file-input" style="color:var(--accent); cursor:pointer;">parcourez vos fichiers</label></p>
+    <p class="text-sm mt-0">JPG, PNG, WEBP — 20 Mo max par fichier</p>
+    <input type="file" name="images" id="file-input" multiple accept="image/jpeg,image/png,image/webp">
+  </div>
+  <div class="progress-list" id="progress-list"></div>
+</form>
+
+<h2 style="font-size:1rem; margin-top:2rem;">Photos ({{ photos|length }})</h2>
+{% if photos %}
+<div class="photo-grid" id="photo-grid">
+  {% for photo in photos %}
+  <div class="photo-tile">
+    <img src="{{ photo.image.url }}" alt="{{ photo.original_filename }}" onclick="openLightbox('{{ photo.image.url }}')">
+    <div class="photo-tile__actions">
+      <form method="post" action="{% url 'events:photo_delete' event.pk photo.pk %}" onsubmit="return confirm('Supprimer cette photo ?');">
+        {% csrf_token %}
+        <button type="submit">✕</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">Aucune photo importée pour l'instant.</div>
+{% endif %}
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox__close" onclick="closeLightbox()">&times;</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/upload.js' %}"></script>
+<script src="{% static 'js/lightbox.js' %}"></script>
+<script>
+function copyShareLink() {
+  const input = document.getElementById('share-link-input');
+  input.select();
+  navigator.clipboard.writeText(input.value);
+}
+</script>
+{% endblock %}

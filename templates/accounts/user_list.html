@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Utilisateurs — KPS Studio{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>User Management</h1>
+    <p>Gérez les accès et statuts des photographes.</p>
+  </div>
+  <a href="{% url 'accounts:user_create' %}" class="btn">+ Ajouter un utilisateur</a>
+</div>
+
+<div class="tabs">
+  <a href="?" class="{% if status == 'all' %}active{% endif %}">Tous</a>
+  <a href="?status=active" class="{% if status == 'active' %}active{% endif %}">Actifs</a>
+  <a href="?status=inactive" class="{% if status == 'inactive' %}active{% endif %}">Inactifs</a>
+</div>
+
+{% if users %}
+<div class="card" style="padding:0;">
+  <table>
+    <thead>
+      <tr><th>Photographe</th><th>Contact</th><th>Inscrit le</th><th>Événements</th><th>Statut</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>
+          <div class="table-cell-flex">
+            <div class="table-avatar">{% if u.logo %}<img src="{{ u.logo.url }}" alt="">{% else %}{{ u.get_short_name|first|upper }}{% endif %}</div>
+            <div style="font-weight:600;">{{ u.get_full_name }}</div>
+          </div>
+        </td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.date_joined|date:"d/m/Y" }}</td>
+        <td>{{ u.event_count }}</td>
+        <td>
+          {% if u.is_active %}<span class="badge badge--active">Actif</span>{% else %}<span class="badge badge--muted">Inactif</span>{% endif %}
+        </td>
+        <td>
+          <form method="post" action="{% url 'accounts:user_toggle_active' u.pk %}">
+            {% csrf_token %}
+            {% if u.is_active %}
+              <button type="submit" class="btn btn--secondary btn--sm">Désactiver</button>
+            {% else %}
+              <button type="submit" class="btn btn--sm">Activer</button>
+            {% endif %}
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% if is_paginated %}
+<div class="pagination">
+  {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}{% if status != 'all' %}&status={{ status }}{% endif %}">Précédent</a>{% endif %}
+  <span class="current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}{% if status != 'all' %}&status={{ status }}{% endif %}">Suivant</a>{% endif %}
+</div>
+{% endif %}
+{% else %}
+<div class="empty-state">Aucun photographe pour le moment.</div>
+{% endif %}
+{% endblock %}

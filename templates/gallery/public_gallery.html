@@ -1,0 +1,41 @@
+{% extends "public_base.html" %}
+{% load static %}
+{% block title %}{{ event.title }} — KPS Studio{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="hero">
+    <div class="hero__by">Galerie proposée par <strong>{{ photographer.get_full_name }}</strong></div>
+    <h1>{{ event.title }}</h1>
+    {% if event.description %}<p>{{ event.description }}</p>{% endif %}
+    <div class="hero__countdown">⏱ Expire le {{ event.expires_at|date:"d/m/Y" }}</div>
+    <br>
+    {% if photos %}
+    <a href="{% url 'gallery:download_all' share_link.token %}" class="btn">Tout télécharger (zip)</a>
+    {% endif %}
+  </div>
+
+  {% if photos %}
+  <div class="photo-grid" id="photo-grid">
+    {% for photo in photos %}
+    <div class="photo-tile">
+      <img src="{{ photo.image.url }}" alt="" onclick="openLightbox('{{ photo.image.url }}')">
+      <div class="photo-tile__actions">
+        <a href="{% url 'gallery:download_photo' share_link.token photo.pk %}">Télécharger</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">Aucune photo n'a encore été publiée pour cet événement.</div>
+  {% endif %}
+
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox__close" onclick="closeLightbox()">&times;</button>
+    <img id="lightbox-img" src="" alt="">
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/lightbox.js' %}"></script>
+{% endblock %}
