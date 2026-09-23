@@ -3,14 +3,14 @@
 {% block content %}
 <div class="page-header">
   <div>
-    <h1>Platform Settings</h1>
+    <h1>Paramètres</h1>
     <p>Gérez le profil de votre studio et vos préférences de sécurité.</p>
   </div>
 </div>
 
 <div class="stack" style="max-width:640px;">
   <div class="card">
-    <h2 style="font-size:1.05rem;">Company Profile</h2>
+    <h2 style="font-size:1.05rem;">Profil du studio</h2>
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
       {% for field in form %}

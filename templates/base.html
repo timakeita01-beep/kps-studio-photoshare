@@ -17,7 +17,7 @@
   <div class="app-shell">
     <aside class="sidebar">
       <div class="sidebar__brand">KPS <span>Studio</span></div>
-      <div class="sidebar__tagline">Photography Management</div>
+      <div class="sidebar__tagline">Gestion photographique</div>
 
       {% if user.is_photographer %}
       <a href="{% url 'events:event_create' %}" class="sidebar__create">+ Créer un événement</a>
@@ -25,15 +25,15 @@
 
       <nav class="sidebar__nav">
         {% if user.is_admin %}
-          <a href="{% url 'accounts:admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">Overview</a>
+          <a href="{% url 'accounts:admin_dashboard' %}" class="{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">Vue d'ensemble</a>
         {% endif %}
         {% if user.is_photographer %}
-          <a href="{% url 'events:dashboard' %}" class="{% if 'events' in request.resolver_match.namespaces %}active{% endif %}">Events</a>
+          <a href="{% url 'events:dashboard' %}" class="{% if 'events' in request.resolver_match.namespaces %}active{% endif %}">Événements</a>
         {% endif %}
         {% if user.is_admin %}
-          <a href="{% url 'accounts:user_list' %}" class="{% if request.resolver_match.url_name == 'user_list' or request.resolver_match.url_name == 'user_create' %}active{% endif %}">Users</a>
+          <a href="{% url 'accounts:user_list' %}" class="{% if request.resolver_match.url_name == 'user_list' or request.resolver_match.url_name == 'user_create' %}active{% endif %}">Utilisateurs</a>
         {% endif %}
-        <a href="{% url 'accounts:profile' %}" class="{% if request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'password_change' %}active{% endif %}">Settings</a>
+        <a href="{% url 'accounts:profile' %}" class="{% if request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'password_change' %}active{% endif %}">Paramètres</a>
       </nav>
 
       <div class="sidebar__theme">
@@ -61,7 +61,7 @@
 
     <div class="main">
       <div class="topbar">
-        <input type="search" class="topbar__search" placeholder="Search events, clients…" disabled>
+        <input type="search" class="topbar__search" placeholder="Rechercher des événements, des clients…" disabled>
         <div class="topbar__actions text-muted text-sm">{{ user.email }}</div>
       </div>
 

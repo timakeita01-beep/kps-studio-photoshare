@@ -1,21 +1,32 @@
 {% extends "base.html" %}
-{% block title %}Nouveau photographe — KPS Studio{% endblock %}
+{% block title %}{% if target %}Modifier le photographe{% else %}Nouveau photographe{% endif %} — KPS Studio{% endblock %}
 {% block content %}
 <div class="container--narrow">
   <div class="page-header">
-    <h1>Nouveau photographe</h1>
+    <h1>{% if target %}Modifier {{ target.get_full_name }}{% else %}Nouveau photographe{% endif %}</h1>
   </div>
   <div class="card">
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
       {% for field in form %}
       <div class="form-group">
         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
         {{ field }}
+        {% if field.name == 'logo' and target.logo %}
+          <img src="{{ target.logo.url }}" alt="" style="height:48px; border-radius:6px; margin-top:0.5rem;">
+        {% endif %}
+        {% if field.help_text %}<div class="help-text">{{ field.help_text }}</div>{% endif %}
         {% if field.errors %}<div class="field-errors">{{ field.errors }}</div>{% endif %}
       </div>
       {% endfor %}
+      {% if target %}
+      <div class="flex">
+        <button type="submit" class="btn">Enregistrer les modifications</button>
+        <a href="{% url 'accounts:user_list' %}" class="btn btn--secondary">Annuler</a>
+      </div>
+      {% else %}
       <button type="submit" class="btn btn--block">Créer le compte</button>
+      {% endif %}
     </form>
   </div>
 </div>

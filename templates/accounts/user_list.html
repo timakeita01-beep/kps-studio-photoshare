@@ -3,7 +3,7 @@
 {% block content %}
 <div class="page-header">
   <div>
-    <h1>User Management</h1>
+    <h1>Gestion des utilisateurs</h1>
     <p>Gérez les accès et statuts des photographes.</p>
   </div>
   <a href="{% url 'accounts:user_create' %}" class="btn">+ Ajouter un utilisateur</a>
@@ -37,14 +37,17 @@
           {% if u.is_active %}<span class="badge badge--active">Actif</span>{% else %}<span class="badge badge--muted">Inactif</span>{% endif %}
         </td>
         <td>
-          <form method="post" action="{% url 'accounts:user_toggle_active' u.pk %}">
-            {% csrf_token %}
-            {% if u.is_active %}
-              <button type="submit" class="btn btn--secondary btn--sm">Désactiver</button>
-            {% else %}
-              <button type="submit" class="btn btn--sm">Activer</button>
-            {% endif %}
-          </form>
+          <div class="flex">
+            <a href="{% url 'accounts:user_update' u.pk %}" class="btn btn--secondary btn--sm">Modifier</a>
+            <form method="post" action="{% url 'accounts:user_toggle_active' u.pk %}">
+              {% csrf_token %}
+              {% if u.is_active %}
+                <button type="submit" class="btn btn--secondary btn--sm">Désactiver</button>
+              {% else %}
+                <button type="submit" class="btn btn--sm">Activer</button>
+              {% endif %}
+            </form>
+          </div>
         </td>
       </tr>
       {% endfor %}

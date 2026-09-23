@@ -10,7 +10,7 @@ from django.views.generic import ListView, UpdateView
 
 from apps.events.models import Event, Photo
 
-from .forms import EmailLoginForm, PhotographerInviteForm, ProfileForm
+from .forms import EmailLoginForm, PhotographerEditForm, PhotographerInviteForm, ProfileForm
 from .mixins import AdminRequiredMixin
 from .models import CustomUser
 
@@ -132,6 +132,24 @@ class UserCreateView(AdminRequiredMixin, View):
             messages.success(request, 'Le photographe a été créé.')
             return redirect('accounts:user_list')
         return render(request, self.template_name, {'form': form})
+
+
+class UserUpdateView(AdminRequiredMixin, View):
+    template_name = 'accounts/user_form.html'
+
+    def get(self, request, pk):
+        target = get_object_or_404(CustomUser, pk=pk, is_photographer=True)
+        form = PhotographerEditForm(instance=target)
+        return render(request, self.template_name, {'form': form, 'target': target})
+
+    def post(self, request, pk):
+        target = get_object_or_404(CustomUser, pk=pk, is_photographer=True)
+        form = PhotographerEditForm(request.POST, request.FILES, instance=target)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Le compte de {target.email} a été mis à jour.')
+            return redirect('accounts:user_list')
+        return render(request, self.template_name, {'form': form, 'target': target})
 
 
 class UserToggleActiveView(AdminRequiredMixin, View):

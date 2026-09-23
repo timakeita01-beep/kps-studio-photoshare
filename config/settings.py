@@ -100,7 +100,7 @@ LOGOUT_REDIRECT_URL = 'accounts:login'
 # --- Internationalization --------------------------------------------------
 
 LANGUAGE_CODE = 'fr-fr'
-TIME_ZONE = 'Europe/Paris'
+TIME_ZONE = 'Africa/Bamako'
 USE_I18N = True
 USE_TZ = True
 
